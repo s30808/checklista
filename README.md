@@ -63,3 +63,86 @@ https://lab.itsol.dev/published/e/ef415a0f-8d73-4e87-a5b8-f4e907968b0c?classId=4
   }
 }
 
+
+
+Po utworzeniu projektu w Riderze musisz zestawić połączenie na dwóch poziomach: w kodzie swojej aplikacji (aby endpointy mogły pobierać dane) oraz w samym środowisku Rider (aby IDE podpowiadało Ci nazwy tabel i sprawdzało błędy w SQL-u).
+
+Oto jak to zrobić krok po kroku.
+1. Połączenie w kodzie aplikacji (ADO.NET)
+
+Krok 1: Dodanie paczki NuGet
+Upewnij się, że masz zainstalowaną bibliotekę do obsługi SQL Server. W terminalu na dole ekranu wpisz:
+Bash
+
+dotnet add package Microsoft.Data.SqlClient
+
+Krok 2: Konfiguracja appsettings.json
+Otwórz plik appsettings.json i dodaj swój Connection String. To on mówi aplikacji, gdzie leży baza i jak się do niej zalogować:
+JSON
+
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433;Database=ClinicAdoNet;User Id=sa;Password=TwojeHaslo123;TrustServerCertificate=True"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  }
+}
+
+Krok 3: Pobranie adresu w kontrolerze
+W swoim kontrolerze musisz pobrać ten adres z konfiguracji za pomocą IConfiguration. Robi się to w konstruktorze:
+C#
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+
+[ApiController]
+[Route("api/[controller]")]
+public class AppointmentsController : ControllerBase
+{
+    private readonly string _connectionString;
+
+    public AppointmentsController(IConfiguration configuration)
+    {
+        // Pobieramy connection string o nazwie "DefaultConnection"
+        _connectionString = configuration.GetConnectionString("DefaultConnection") 
+                            ?? throw new Exception("Brak connection stringa!");
+    }
+}
+
+Krok 4: Użycie połączenia w endpoincie
+Teraz w każdej metodzie (np. GET czy POST) otwierasz połączenie, używając przygotowanego adresu:
+C#
+
+[HttpGet]
+public async Task<IActionResult> GetSomething()
+{
+    await using var connection = new SqlConnection(_connectionString);
+    await using var command = new SqlCommand("SELECT * FROM Patients", connection);
+    
+    await connection.OpenAsync(); // Otwarcie drzwi do bazy danych
+    
+    await using var reader = await command.ExecuteReaderAsync();
+    // ... czytanie danych ...
+    
+    return Ok();
+}
+
+2. Połączenie samego Ridera z bazą (Dla podpowiedzi SQL)
+
+Podpięcie bazy bezpośrednio pod Ridera to ogromne ułatwienie, bo IDE będzie analizować Twoje zapytania (np. SELECT * FROM ...) umieszczone w stringach i podświetlać błędy, jeśli pomylisz nazwę kolumny.
+
+Krok 1: Znajdź po prawej stronie ekranu pionową zakładkę Database (ikona bębna) i kliknij ją.
+Krok 2: Kliknij ikonę plusa (+) w lewym górnym rogu tego okienka.
+Krok 3: Wybierz Data Source, a następnie Microsoft SQL Server.
+Krok 4: W nowym oknie wpisz dane logowania do swojego lokalnego serwera:
+
+    User: np. sa
+
+    Password: Twoje hasło do bazy
+    Krok 5: Zanim zapiszesz, przejdź do zakładki Schemas w tym samym okienku i zaznacz swoją bazę (np. ClinicAdoNet), aby Rider wiedział, z których tabelek ma brać podpowiedzi.
+    Krok 6: Kliknij Test Connection (na dole). Jeśli pokaże się zielony ptaszek, kliknij OK.
+
+Od teraz, gdy w kodzie C# zaczniesz pisać zapytanie wewnątrz new SqlCommand("...", connection), Rider rozpozna, że to SQL i zacznie podpowiadać Ci nazwy z Twojej bazy.
