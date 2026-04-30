@@ -46,3 +46,20 @@ git commit -m "Twoja wiadomość co zrobiłeś"
 git push
 
 https://lab.itsol.dev/published/p/185afb34-1688-4054-ad82-5ab4cf6567e6
+
+https://lab.itsol.dev/published/e/ef415a0f-8d73-4e87-a5b8-f4e907968b0c?classId=44d500ce-c352-4f2a-b551-2d51843df9e4&assignmentId=e3d4017f-f149-4baf-b44d-cf8d9b1d2fd4&submissionId=35c7bdc3-4b2e-3358-a41f-6ab4a6654359
+
+
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433;Database=ClinicAdoNet;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True"
+  }
+}
+
