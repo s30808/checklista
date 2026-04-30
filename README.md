@@ -37,3 +37,12 @@ Czy końcówa realizuje operacje typu POST/PUT/DELETE, w trakcie której wywoły
 
 Czy logika biznesowa/zapytań do bazy zapisana jest bezpośrednio w kontrolerze?
 - Wydzielić logikę do oddzielnych warstw. Odwołać się do nich poprzez wbudowany system zarządzania zależnościami (Kontener DI).
+
+
+git rm --cached nazwa_pliku.cs
+
+git add .
+git commit -m "Twoja wiadomość co zrobiłeś"
+git push
+
+https://lab.itsol.dev/published/p/185afb34-1688-4054-ad82-5ab4cf6567e6
